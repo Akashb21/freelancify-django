@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: freelancify
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "daphne freelancify.asgi:application"
+    envVars:
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLIC_KEY
+        sync: false

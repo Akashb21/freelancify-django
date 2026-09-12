@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Find & Search Developers - Freelancify{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-white">Find & Hire Top Developers</h1>
+    <p class="text-sm text-slate-400 mt-1">Discover skilled full-stack, frontend, backend, and AI developers.</p>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="glass-card p-6 rounded-3xl border border-slate-800 mb-8">
+    <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Search Name / Title</label>
+        <input type="text" name="q" value="{{ query }}" placeholder="e.g. Rahul Kumar, React..." class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Filter Skill / Tech</label>
+        <input type="text" name="skill" value="{{ skill }}" placeholder="e.g. Python, React, Django" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Experience</label>
+        <input type="text" name="exp" value="{{ exp }}" placeholder="e.g. 2+ years" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Max Rate (₹ or $/hr)</label>
+        <input type="number" name="max_rate" value="{{ max_rate }}" placeholder="e.g. 1000" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <div class="flex items-end space-x-2">
+        <button type="submit" class="w-full py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-500/20">
+          Search
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Developer Listing Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for f in freelancers %}
+      <div class="p-6 rounded-3xl glass-card border border-slate-800 flex flex-col justify-between hover:border-cyan-500/40 relative">
+        
+        <!-- Save / Favorite Button for Clients -->
+        {% if user.is_authenticated and user.is_client %}
+          <a href="{% url 'users:toggle_favorite' freelancer_id=f.pk %}" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-xs transition-colors {% if f.pk in saved_ids %}text-red-400 border-red-500/50{% else %}text-slate-500 hover:text-red-400{% endif %}" title="Save Developer">
+            <i class="fa-solid fa-heart"></i>
+          </a>
+        {% endif %}
+
+        <div>
+          <div class="flex items-start space-x-4 mb-4">
+            <div class="w-16 h-16 rounded-2xl bg-slate-900 border-2 border-cyan-500/60 overflow-hidden flex items-center justify-center shrink-0">
+              {% if f.avatar %}
+                <img src="{{ f.avatar.url }}" alt="{{ f.username }}" class="w-full h-full object-cover">
+              {% else %}
+                <span class="text-xl font-extrabold text-cyan-400">{{ f.username|slice:":2"|upper }}</span>
+              {% endif %}
+            </div>
+
+            <div>
+              <a href="{% url 'users:profile_detail' username=f.username %}" class="font-bold text-base text-white hover:text-cyan-400 transition-colors">
+                {{ f.get_full_name|default:f.username }}
+              </a>
+              <p class="text-xs text-cyan-400 font-medium">{{ f.profile.title }}</p>
+              <div class="flex items-center space-x-2 mt-1 text-[11px] text-slate-400">
+                <span><i class="fa-solid fa-star text-amber-400"></i> {{ f.profile.rating_average }}</span>
+                <span>• {{ f.profile.experience }} exp</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 line-clamp-3 leading-relaxed mb-4">{{ f.profile.bio }}</p>
+
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            {% for skill in f.profile.get_skills_list %}
+              <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 text-[11px] border border-slate-800">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] text-slate-400 font-bold uppercase block">Hourly Rate</span>
+            <span class="text-base font-extrabold text-cyan-400">{{ f.profile.currency }}{{ f.profile.hourly_rate }}/hour</span>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            {% if user.is_authenticated %}
+              <a href="{% url 'chat:start_conversation' username=f.username %}" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-cyan-300 hover:bg-slate-700">
+                Contact
+              </a>
+            {% endif %}
+            <a href="{% url 'users:profile_detail' username=f.username %}" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300">
+              View Profile
+            </a>
+          </div>
+        </div>
+
+      </div>
+    {% empty %}
+      <div class="col-span-3 text-center py-12 glass-card rounded-3xl">
+        <i class="fa-solid fa-users text-4xl text-slate-600 mb-3"></i>
+        <p class="text-slate-300 font-semibold">No developers match your search filters.</p>
+        <a href="{% url 'users:freelancer_list' %}" class="text-xs text-cyan-400 hover:underline mt-2 inline-block">Reset Filters</a>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

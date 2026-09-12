@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}{{ project.title }} - Project Details{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="glass-card p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-8">
+    
+    <div class="border-b border-slate-800 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <span class="px-3 py-1 rounded-full badge-open text-xs font-bold uppercase">{{ project.category.name|default:"Software Project" }}</span>
+        <h1 class="text-3xl font-extrabold text-white mt-2">{{ project.title }}</h1>
+        <p class="text-xs text-slate-400 mt-1">Role: <span class="text-cyan-400 font-semibold">{{ project.role_description }}</span></p>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button onclick="openDemoModal('{{ project.title|escapejs }}', '{{ project.technologies|escapejs }}', '{{ project.freelancer.username }}')" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-cyan-400 text-slate-950 hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-500/20">
+          <i class="fa-solid fa-rocket mr-1.5"></i> Live Demo Preview
+        </button>
+        {% if project.github_url %}
+          <a href="{{ project.github_url }}" target="_blank" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-slate-800 text-slate-200 hover:bg-slate-700 transition-all">
+            <i class="fa-brands fa-github mr-1.5"></i> GitHub Repo
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-white mb-3">Project Description & Architecture</h3>
+      <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-line">{{ project.description }}</p>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-white mb-3">Technologies & Frameworks</h3>
+      <div class="flex flex-wrap gap-2">
+        {% for tech in project.get_tech_list %}
+          <span class="px-3.5 py-1.5 rounded-xl bg-slate-900 text-cyan-300 text-xs font-semibold border border-slate-700/80">{{ tech }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-2xl bg-slate-800 overflow-hidden flex items-center justify-center border border-cyan-500/50">
+          {% if project.freelancer.avatar %}
+            <img src="{{ project.freelancer.avatar.url }}" class="w-full h-full object-cover">
+          {% else %}
+            <span class="font-bold text-cyan-400 text-sm">{{ project.freelancer.username|slice:":2"|upper }}</span>
+          {% endif %}
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-white">Built by {{ project.freelancer.get_full_name|default:project.freelancer.username }}</h4>
+          <p class="text-xs text-cyan-400 font-medium">{{ project.freelancer.profile.title }}</p>
+        </div>
+      </div>
+
+      <a href="{% url 'users:profile_detail' username=project.freelancer.username %}" class="px-5 py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300">
+        View Developer Profile
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

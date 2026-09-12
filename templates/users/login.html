@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Log In - Freelancify{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full glass-card p-8 rounded-3xl border border-slate-800 shadow-2xl space-y-6">
+    
+    <div class="text-center">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/30">
+        <i class="fa-solid fa-lock text-white text-xl"></i>
+      </div>
+      <h2 class="text-3xl font-extrabold text-white">Welcome Back</h2>
+      <p class="text-sm text-slate-400 mt-1">Log in to your Freelancify account</p>
+    </div>
+
+    <!-- Quick Demo Login Buttons -->
+    <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
+      <p class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider text-center">Instant Demo Login</p>
+      <div class="grid grid-cols-3 gap-2 pt-1">
+        <a href="?demo=freelancer" class="py-2 px-2 rounded-xl bg-slate-900 border border-cyan-500/30 hover:border-cyan-400 text-[11px] font-bold text-white text-center transition-all hover:bg-cyan-500 hover:text-slate-950">
+          <i class="fa-solid fa-code block mb-1 text-cyan-400"></i> Freelancer
+        </a>
+        <a href="?demo=client" class="py-2 px-2 rounded-xl bg-slate-900 border border-indigo-500/30 hover:border-indigo-400 text-[11px] font-bold text-white text-center transition-all hover:bg-indigo-500 hover:text-white">
+          <i class="fa-solid fa-briefcase block mb-1 text-indigo-400"></i> Client
+        </a>
+        <a href="?demo=admin" class="py-2 px-2 rounded-xl bg-slate-900 border border-purple-500/30 hover:border-purple-400 text-[11px] font-bold text-white text-center transition-all hover:bg-purple-500 hover:text-white">
+          <i class="fa-solid fa-user-shield block mb-1 text-purple-400"></i> Admin
+        </a>
+      </div>
+    </div>
+
+    <form method="POST" action="{% url 'users:login' %}" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Username</label>
+        <input type="text" name="username" required class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-white focus:outline-none focus:border-cyan-500 placeholder-slate-500 text-xs" placeholder="Enter your username">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Password</label>
+        <input type="password" name="password" required class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-white focus:outline-none focus:border-cyan-500 placeholder-slate-500 text-xs" placeholder="••••••••">
+      </div>
+
+      <button type="submit" class="w-full py-3.5 rounded-xl font-bold text-xs text-slate-950 bg-gradient-to-r from-cyan-400 to-indigo-400 hover:from-cyan-300 hover:to-indigo-300 transition-all shadow-lg shadow-cyan-500/25">
+        Log In
+      </button>
+    </form>
+
+    <div class="text-center pt-4 border-t border-slate-800/80">
+      <p class="text-xs text-slate-400">
+        Don't have an account? 
+        <a href="{% url 'users:signup' %}" class="text-cyan-400 font-semibold hover:underline">Sign Up Free</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

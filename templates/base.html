@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Freelancify - Discover Developers & Project Showcase{% endblock %}</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <header class="sticky top-0 z-50 glass-nav">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-solid fa-bolt text-white text-xl"></i>
+          </div>
+          <span class="text-2xl font-extrabold tracking-tight text-white">Freelancify<span class="text-cyan-400">.</span></span>
+        </a>
+
+        <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+          <a href="{% url 'users:freelancer_list' %}" class="text-slate-300 hover:text-cyan-400 transition-colors">Find Developers</a>
+          <a href="{% url 'jobs:project_showcase' %}" class="text-slate-300 hover:text-cyan-400 transition-colors">Project Showcase</a>
+          <a href="{% url 'jobs:job_list' %}" class="text-slate-300 hover:text-cyan-400 transition-colors">Find Jobs</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'dashboard:dashboard' %}" class="text-slate-300 hover:text-cyan-400 transition-colors">Dashboard</a>
+            <a href="{% url 'chat:inbox' %}" class="text-slate-300 hover:text-cyan-400 transition-colors">Messages</a>
+          {% endif %}
+        </nav>
+
+        <div class="hidden md:flex items-center space-x-5">
+          {% if user.is_authenticated %}
+            <div class="relative">
+              <button id="notifications-dropdown-btn" class="relative p-2 text-slate-300 hover:text-white rounded-xl hover:bg-slate-800/60 transition-colors">
+                <i class="fa-regular fa-bell text-xl"></i>
+                {% if unread_notifications_count > 0 %}
+                  <span class="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-500 text-[10px] font-bold text-slate-950 animate-pulse">
+                    {{ unread_notifications_count }}
+                  </span>
+                {% endif %}
+              </button>
+
+              <div id="notifications-dropdown-menu" class="hidden absolute right-0 mt-3 w-80 glass-card rounded-2xl p-4 z-50 shadow-2xl border border-slate-700/80">
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-700/60">
+                  <h4 class="font-semibold text-white text-sm">Notifications</h4>
+                  <a href="{% url 'users:notifications' %}" class="text-xs text-cyan-400 hover:underline">View All</a>
+                </div>
+                <div class="space-y-2">
+                  {% for notif in header_notifications %}
+                    <a href="{% if notif.link %}{{ notif.link }}{% else %}#{% endif %}" class="block p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors">
+                      <p class="text-xs font-semibold text-cyan-400">{{ notif.title }}</p>
+                      <p class="text-xs text-slate-300 line-clamp-2 mt-0.5">{{ notif.message }}</p>
+                      <span class="text-[10px] text-slate-500 mt-1 block">{{ notif.created_at|timesince }} ago</span>
+                    </a>
+                  {% empty %}
+                    <p class="text-xs text-slate-400 text-center py-4">No unread notifications</p>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            {% if user.is_client or user.is_superuser %}
+              <a href="{% url 'jobs:job_create' %}" class="px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-950 bg-gradient-to-r from-cyan-400 to-indigo-400 hover:from-cyan-300 hover:to-indigo-300 transition-all duration-200 shadow-lg shadow-cyan-500/20">
+                <i class="fa-solid fa-plus mr-1.5"></i> Post a Job
+              </a>
+            {% endif %}
+
+            <a href="{% url 'users:profile_detail' username=user.username %}" class="flex items-center space-x-3 group">
+              <div class="w-10 h-10 rounded-full bg-slate-800 border-2 border-cyan-500/60 overflow-hidden flex items-center justify-center">
+                {% if user.avatar %}
+                  <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="w-full h-full object-cover">
+                {% else %}
+                  <span class="font-bold text-cyan-400">{{ user.username|slice:":2"|upper }}</span>
+                {% endif %}
+              </div>
+            </a>
+
+            <a href="{% url 'users:logout' %}" class="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Logout">
+              <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
+            </a>
+
+          {% else %}
+            <a href="{% url 'users:login' %}" class="text-sm font-semibold text-slate-300 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-800/50 transition-colors">
+              Log In
+            </a>
+            <a href="{% url 'users:signup' %}" class="px-5 py-2.5 rounded-xl font-semibold text-sm text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all duration-200 shadow-lg shadow-cyan-500/20">
+              Sign Up
+            </a>
+          {% endif %}
+        </div>
+
+        <button id="mobile-menu-btn" class="md:hidden p-2 text-slate-300 hover:text-white focus:outline-none">
+          <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden glass-card border-t border-slate-800 px-4 pt-4 pb-6 space-y-3">
+      <a href="{% url 'users:freelancer_list' %}" class="block text-slate-300 hover:text-cyan-400 py-2">Find Developers</a>
+      <a href="{% url 'jobs:project_showcase' %}" class="block text-slate-300 hover:text-cyan-400 py-2">Project Showcase</a>
+      <a href="{% url 'jobs:job_list' %}" class="block text-slate-300 hover:text-cyan-400 py-2">Find Jobs</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard:dashboard' %}" class="block text-slate-300 hover:text-cyan-400 py-2">Dashboard</a>
+        <a href="{% url 'chat:inbox' %}" class="block text-slate-300 hover:text-cyan-400 py-2">Messages</a>
+        <a href="{% url 'users:profile_detail' username=user.username %}" class="block text-slate-300 hover:text-cyan-400 py-2">My Profile</a>
+        <a href="{% url 'users:logout' %}" class="block text-red-400 py-2">Log Out</a>
+      {% else %}
+        <a href="{% url 'users:login' %}" class="block text-slate-300 py-2">Log In</a>
+        <a href="{% url 'users:signup' %}" class="block text-cyan-400 font-semibold py-2">Sign Up</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="fixed bottom-5 right-5 z-50 space-y-3 max-w-md w-full px-4 pointer-events-none">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="toast-alert pointer-events-auto p-4 rounded-2xl glass-card flex items-start space-x-3 border-l-4 shadow-2xl transition-all duration-300
+          {% if message.tags == 'error' %} border-red-500 bg-red-950/80 text-red-200
+          {% elif message.tags == 'warning' %} border-amber-500 bg-amber-950/80 text-amber-200
+          {% elif message.tags == 'success' %} border-cyan-500 bg-slate-900/90 text-cyan-200
+          {% else %} border-indigo-500 bg-slate-900/90 text-indigo-200 {% endif %}">
+          
+          <i class="fa-solid {% if message.tags == 'error' %}fa-circle-exclamation text-red-400{% elif message.tags == 'success' %}fa-circle-check text-cyan-400{% else %}fa-circle-info text-indigo-400{% endif %} text-lg mt-0.5"></i>
+          <div class="flex-1 text-sm font-medium">
+            {{ message }}
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <main class="flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Live Demo Preview Modal -->
+  <div id="live-demo-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+    <div class="glass-card max-w-2xl w-full p-8 rounded-3xl border border-slate-800 shadow-2xl relative space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-rocket text-lg"></i>
+          </div>
+          <div>
+            <h3 id="demo-modal-title" class="text-xl font-extrabold text-white">Live Demo Preview</h3>
+            <p id="demo-modal-subtitle" class="text-xs text-cyan-400 font-semibold">Staging Sandbox & Live Environment</p>
+          </div>
+        </div>
+        <button onclick="closeDemoModal()" class="text-slate-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 text-center space-y-4">
+        <div class="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/40">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span>Live Demo Environment</span>
+        </div>
+        
+        <div class="py-4 space-y-3">
+          <i class="fa-solid fa-laptop-code text-5xl text-cyan-400"></i>
+          <h4 class="text-lg font-bold text-white">Application Live Sandbox</h4>
+          <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+            This project's live demo environment is active in staging. You can contact the developer directly to request live demo access or preview the project source code.
+          </p>
+        </div>
+
+        <div id="demo-modal-tech" class="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-slate-800">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <button onclick="closeDemoModal()" class="px-5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+          Close
+        </button>
+        <a id="demo-modal-contact-btn" href="#" class="px-6 py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-500/20">
+          <i class="fa-regular fa-paper-plane mr-1.5"></i> Contact Developer
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-20 border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="space-y-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center">
+              <i class="fa-solid fa-bolt text-white text-sm"></i>
+            </div>
+            <span class="text-xl font-bold text-white">Freelancify</span>
+          </div>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            The lightweight developer showcase & freelance platform to connect clients with top talent.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">For Clients</h4>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li><a href="{% url 'users:freelancer_list' %}" class="hover:text-cyan-400 transition-colors">Find Developers</a></li>
+            <li><a href="{% url 'jobs:project_showcase' %}" class="hover:text-cyan-400 transition-colors">Explore Projects</a></li>
+            <li><a href="{% url 'jobs:job_create' %}" class="hover:text-cyan-400 transition-colors">Post a Requirement</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">For Developers</h4>
+          <ul class="space-y-2 text-sm text-slate-400">
+            <li><a href="{% url 'users:signup' %}" class="hover:text-cyan-400 transition-colors">Create Profile</a></li>
+            <li><a href="{% url 'jobs:job_list' %}" class="hover:text-cyan-400 transition-colors">Browse Job Requests</a></li>
+            <li><a href="{% url 'jobs:project_showcase' %}" class="hover:text-cyan-400 transition-colors">Showcase Work</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Connect</h4>
+          <div class="flex space-x-4 mb-4">
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-cyan-400 transition-all"><i class="fa-brands fa-github"></i></a>
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-cyan-400 transition-all"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-cyan-400 transition-all"><i class="fa-brands fa-linkedin"></i></a>
+          </div>
+          <p class="text-xs text-slate-500">&copy; 2026 Freelancify Platform. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  <script>
+    function openDemoModal(title, techStr, developerUsername) {
+      document.getElementById('demo-modal-title').innerText = title || "Live Project Demo";
+      
+      const techContainer = document.getElementById('demo-modal-tech');
+      techContainer.innerHTML = '';
+      if (techStr) {
+        techStr.split(',').forEach(tech => {
+          const span = document.createElement('span');
+          span.className = 'px-3 py-1 rounded-lg bg-slate-800 text-cyan-300 text-xs font-medium border border-slate-700';
+          span.innerText = tech.trim();
+          techContainer.appendChild(span);
+        });
+      }
+
+      const contactBtn = document.getElementById('demo-modal-contact-btn');
+      if (developerUsername) {
+        contactBtn.href = `/chat/start/${developerUsername}/`;
+      } else {
+        contactBtn.href = '/users/freelancers/';
+      }
+
+      document.getElementById('live-demo-modal').classList.remove('hidden');
+    }
+
+    function closeDemoModal() {
+      document.getElementById('live-demo-modal').classList.add('hidden');
+    }
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

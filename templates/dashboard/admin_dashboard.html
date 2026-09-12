@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard - Freelancify{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-white">Platform Administration</h1>
+    <p class="text-sm text-slate-400 mt-1">Platform overview, user accounts, and moderation control panel.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- User Management Table -->
+    <div class="glass-card p-6 rounded-3xl border border-slate-800">
+      <h3 class="text-lg font-bold text-white mb-4">Recent Users</h3>
+
+      <div class="space-y-3">
+        {% for u in all_users %}
+          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+            <div>
+              <p class="font-bold text-sm text-white">{{ u.username }} ({{ u.get_role_display }})</p>
+              <p class="text-xs text-slate-400">{{ u.email }}</p>
+            </div>
+            <a href="{% url 'users:profile_detail' username=u.username %}" class="px-3 py-1 rounded-xl bg-slate-800 text-xs font-semibold text-cyan-300">Profile</a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Recent Transactions Ledger -->
+    <div class="glass-card p-6 rounded-3xl border border-slate-800">
+      <h3 class="text-lg font-bold text-white mb-4">Platform Escrow Activity</h3>
+
+      <div class="space-y-3">
+        {% for tx in all_transactions %}
+          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+            <div>
+              <p class="font-bold text-xs text-cyan-400">#{{ tx.invoice_number|slice:":8"|upper }}</p>
+              <p class="text-[11px] text-slate-300">{{ tx.payer.username }} -> {{ tx.payee.username }}</p>
+            </div>
+            <span class="font-extrabold text-sm text-white">${{ tx.amount }}</span>
+          </div>
+        {% empty %}
+          <p class="text-xs text-slate-400 py-4 text-center">No platform transactions recorded yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

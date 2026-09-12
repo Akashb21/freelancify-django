@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% block title %}Contract Workspace #{{ contract.id }} - Freelancify{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <!-- Contract Header Card -->
+  <div class="glass-card p-8 rounded-3xl border border-slate-800 mb-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div>
+        <div class="flex items-center space-x-3 mb-3">
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
+            {% if contract.status == 'ACTIVE' %}badge-active
+            {% elif contract.status == 'SUBMITTED' %}badge-pending
+            {% elif contract.status == 'COMPLETED' %}badge-completed
+            {% else %}badge-open{% endif %}">
+            {{ contract.get_status_display }}
+          </span>
+
+          {% if contract.is_escrow_funded %}
+            <span class="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-3 py-1 rounded-full">
+              <i class="fa-solid fa-shield-halved mr-1"></i> Escrow Secured (${{ contract.agreed_amount }})
+            </span>
+          {% else %}
+            <span class="text-xs font-bold text-amber-400 bg-amber-950/60 border border-amber-800/80 px-3 py-1 rounded-full">
+              <i class="fa-solid fa-triangle-exclamation mr-1"></i> Escrow Deposit Required
+            </span>
+          {% endif %}
+        </div>
+
+        <h1 class="text-3xl font-extrabold text-white">{{ contract.job.title }}</h1>
+        <p class="text-xs text-slate-400 mt-2">
+          Contract ID: <span class="text-slate-200 font-mono">#{{ contract.id }}</span> • Created {{ contract.created_at|date:"M d, Y" }}
+        </p>
+      </div>
+
+      <!-- Main Contract Actions -->
+      <div class="md:text-right shrink-0 space-y-3">
+        <p class="text-3xl font-extrabold text-cyan-400">${{ contract.agreed_amount }} USD</p>
+
+        <div class="flex flex-wrap items-center justify-end gap-3">
+          <!-- Client: Deposit Escrow -->
+          {% if user == contract.client and not contract.is_escrow_funded and contract.status == 'ACTIVE' %}
+            <a href="{% url 'payments:checkout' contract_id=contract.id %}" class="px-6 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-cyan-400 to-indigo-400 text-slate-950 hover:from-cyan-300 hover:to-indigo-300 transition-all shadow-lg shadow-cyan-500/20">
+              <i class="fa-solid fa-lock mr-1.5"></i> Deposit Escrow Funds
+            </a>
+          {% endif %}
+
+          <!-- Freelancer: Submit Work -->
+          {% if user == contract.freelancer and contract.status == 'ACTIVE' %}
+            <a href="{% url 'contracts:submit_work' pk=contract.pk %}" class="px-6 py-2.5 rounded-xl font-bold text-xs bg-cyan-400 text-slate-950 hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-500/20">
+              <i class="fa-solid fa-paper-plane mr-1.5"></i> Submit Completed Work
+            </a>
+          {% endif %}
+
+          <!-- Client: Approve Work & Release Funds -->
+          {% if user == contract.client and contract.status == 'SUBMITTED' %}
+            <a href="{% url 'contracts:approve_work' pk=contract.pk %}" class="px-6 py-2.5 rounded-xl font-bold text-xs bg-emerald-400 text-slate-950 hover:bg-emerald-300 transition-all shadow-lg shadow-emerald-500/20">
+              <i class="fa-solid fa-circle-check mr-1.5"></i> Approve Work & Release Payment
+            </a>
+          {% endif %}
+
+          <!-- Leave Review (If Completed & Review missing) -->
+          {% if contract.status == 'COMPLETED' and not user_review %}
+            <a href="{% url 'contracts:add_review' pk=contract.pk %}" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-400 text-slate-950 hover:bg-amber-300 transition-all">
+              <i class="fa-solid fa-star mr-1.5"></i> Leave Review & Rating
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Left Column: Work Submissions & Reviews -->
+    <div class="lg:col-span-2 space-y-8">
+      
+      <!-- Work Submissions Card -->
+      <div class="glass-card p-8 rounded-3xl border border-slate-800">
+        <h3 class="text-xl font-bold text-white mb-6">Work Deliverables & Submissions</h3>
+
+        <div class="space-y-4">
+          {% for sub in submissions %}
+            <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-cyan-400">Submission Delivered</span>
+                <span class="text-[10px] text-slate-500">{{ sub.submitted_at|date:"M d, Y - H:i" }}</span>
+              </div>
+
+              <p class="text-xs text-slate-200 leading-relaxed whitespace-pre-line">{{ sub.message }}</p>
+
+              {% if sub.external_url %}
+                <div class="pt-2">
+                  <a href="{{ sub.external_url }}" target="_blank" class="inline-flex items-center text-xs font-semibold text-cyan-400 hover:underline">
+                    <i class="fa-solid fa-link mr-1.5"></i> Staging / Live Project Link
+                  </a>
+                </div>
+              {% endif %}
+
+              {% if sub.file_attachment %}
+                <div class="pt-2">
+                  <a href="{{ sub.file_attachment.url }}" download class="inline-flex items-center px-3.5 py-1.5 rounded-xl bg-slate-800 text-xs font-medium text-slate-200 hover:bg-slate-700">
+                    <i class="fa-solid fa-download mr-1.5 text-cyan-400"></i> Download Attached File
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          {% empty %}
+            <p class="text-xs text-slate-400 text-center py-6">No work deliverables submitted yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Published Reviews -->
+      {% if user_review or other_review %}
+        <div class="glass-card p-8 rounded-3xl border border-slate-800">
+          <h3 class="text-xl font-bold text-white mb-6">Contract Feedback & Reviews</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% if user_review %}
+              <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                <p class="text-xs font-bold text-slate-400 mb-1">Your Review</p>
+                <div class="text-amber-400 text-xs mb-2">
+                  {% for i in "12345"|make_list %}
+                    <i class="fa-solid fa-star {% if forloop.counter <= user_review.rating %}text-amber-400{% else %}text-slate-700{% endif %}"></i>
+                  {% endfor %}
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">{{ user_review.feedback }}</p>
+              </div>
+            {% endif %}
+
+            {% if other_review %}
+              <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                <p class="text-xs font-bold text-slate-400 mb-1">Feedback from {{ other_review.reviewer.username }}</p>
+                <div class="text-amber-400 text-xs mb-2">
+                  {% for i in "12345"|make_list %}
+                    <i class="fa-solid fa-star {% if forloop.counter <= other_review.rating %}text-amber-400{% else %}text-slate-700{% endif %}"></i>
+                  {% endfor %}
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">{{ other_review.feedback }}</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Right Sidebar: Contract Parties & Financials -->
+    <div class="space-y-6">
+      
+      <!-- Parties Widget -->
+      <div class="glass-card p-6 rounded-3xl border border-slate-800 space-y-6">
+        <h3 class="font-bold text-white text-base border-b border-slate-800 pb-3">Contract Parties</h3>
+
+        <!-- Client Info -->
+        <div>
+          <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Client</p>
+          <div class="flex items-center space-x-3 mt-2">
+            <div class="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex items-center justify-center border border-cyan-500/50">
+              {% if contract.client.avatar %}
+                <img src="{{ contract.client.avatar.url }}" alt="{{ contract.client.username }}" class="w-full h-full object-cover">
+              {% else %}
+                <span class="font-bold text-cyan-400">{{ contract.client.username|slice:":2"|upper }}</span>
+              {% endif %}
+            </div>
+            <div>
+              <p class="font-bold text-sm text-white">{{ contract.client.get_full_name|default:contract.client.username }}</p>
+              <p class="text-[11px] text-slate-400">{{ contract.client.email }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Freelancer Info -->
+        <div>
+          <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Freelancer</p>
+          <div class="flex items-center space-x-3 mt-2">
+            <div class="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex items-center justify-center border border-cyan-500/50">
+              {% if contract.freelancer.avatar %}
+                <img src="{{ contract.freelancer.avatar.url }}" alt="{{ contract.freelancer.username }}" class="w-full h-full object-cover">
+              {% else %}
+                <span class="font-bold text-cyan-400">{{ contract.freelancer.username|slice:":2"|upper }}</span>
+              {% endif %}
+            </div>
+            <div>
+              <p class="font-bold text-sm text-white">{{ contract.freelancer.get_full_name|default:contract.freelancer.username }}</p>
+              <p class="text-[11px] text-slate-400">{{ contract.freelancer.profile.title }}</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-slate-800">
+
+        <!-- Chat Link -->
+        <a href="{% url 'chat:start_conversation' username=contract.freelancer.username if user == contract.client else contract.client.username %}" class="block text-center py-2.5 rounded-xl text-xs font-semibold bg-slate-800 text-cyan-300 hover:bg-slate-700 transition-colors">
+          <i class="fa-regular fa-comments mr-1.5"></i> Open Contract Live Chat
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

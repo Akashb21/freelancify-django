@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Billing & Transaction History - Freelancify{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-white">Financial Transactions & Invoices</h1>
+    <p class="text-sm text-slate-400 mt-1">Review escrow deposits, payments released, and download official PDF invoices.</p>
+  </div>
+
+  <div class="glass-card rounded-3xl border border-slate-800 overflow-hidden shadow-2xl">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-950/80 text-slate-400 uppercase font-semibold border-b border-slate-800">
+          <tr>
+            <th class="p-4">Invoice #</th>
+            <th class="p-4">Description</th>
+            <th class="p-4">Party</th>
+            <th class="p-4">Amount</th>
+            <th class="p-4">Status</th>
+            <th class="p-4">Date</th>
+            <th class="p-4 text-right">PDF Invoice</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/60">
+          {% for tx in transactions %}
+            <tr class="hover:bg-slate-900/40">
+              <td class="p-4 font-mono font-bold text-white">#{{ tx.invoice_number|slice:":8"|upper }}</td>
+              <td class="p-4 font-medium text-slate-200">{{ tx.description }}</td>
+              <td class="p-4 text-slate-300">
+                {% if user.is_client %}{{ tx.payee.username }}{% else %}{{ tx.payer.username }}{% endif %}
+              </td>
+              <td class="p-4 font-extrabold text-cyan-400">${{ tx.amount }}</td>
+              <td class="p-4">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase
+                  {% if tx.status == 'RELEASED' %}badge-active
+                  {% else %}badge-pending{% endif %}">
+                  {{ tx.get_status_display }}
+                </span>
+              </td>
+              <td class="p-4 text-slate-400">{{ tx.created_at|date:"M d, Y" }}</td>
+              <td class="p-4 text-right">
+                <a href="{% url 'payments:download_invoice' transaction_id=tx.pk %}" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-cyan-300 font-semibold hover:bg-slate-700">
+                  <i class="fa-solid fa-file-pdf mr-1"></i> Download PDF
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-10 text-slate-400">No transaction records found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

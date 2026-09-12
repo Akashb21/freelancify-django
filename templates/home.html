@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block title %}Freelancify - Find the Right Developer for Your Next Project{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative pt-12 pb-20 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+    
+    <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-card border-cyan-500/30 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-8 animate-glow">
+      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+      <span>Developer Showcase & Freelance Platform</span>
+    </div>
+
+    <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-tight">
+      Find the Right Developer for <br/>
+      <span class="text-gradient-cyan">Your Next Project</span>
+    </h1>
+
+    <p class="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
+      Discover skilled developers, explore their work, and connect with the right talent.
+    </p>
+
+    <!-- CTAs -->
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <a href="{% url 'users:freelancer_list' %}" class="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-950 bg-gradient-to-r from-cyan-400 to-indigo-400 hover:from-cyan-300 hover:to-indigo-300 transition-all shadow-lg shadow-cyan-500/25">
+        <i class="fa-solid fa-user-gear mr-2"></i> Find Developers
+      </a>
+      <a href="{% url 'jobs:project_showcase' %}" class="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-200 bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-all">
+        <i class="fa-solid fa-code mr-2"></i> Showcase Your Skills
+      </a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mt-12 max-w-3xl mx-auto">
+      <form action="{% url 'users:freelancer_list' %}" method="GET" class="p-2 rounded-2xl glass-card border border-slate-700/80 flex flex-col sm:flex-row items-center shadow-2xl space-y-3 sm:space-y-0">
+        <div class="flex-1 flex items-center px-4 w-full">
+          <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3 text-lg"></i>
+          <input type="text" name="q" placeholder="Search developers by name, skill, technology (e.g. React Developer, Django, Python)..." class="w-full bg-transparent text-white focus:outline-none placeholder-slate-500 text-xs py-2">
+        </div>
+        <button type="submit" class="w-full sm:w-auto px-8 py-3.5 rounded-xl font-bold text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all">
+          Search
+        </button>
+      </form>
+    </div>
+
+  </div>
+</section>
+
+<!-- Popular Skills Taxonomy -->
+<section class="py-10 border-t border-slate-800/60 bg-slate-950/40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h3 class="text-xs uppercase font-bold text-slate-400 tracking-wider mb-6">Popular Skills & Technologies</h3>
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      {% for skill_name in "Python,React,Django,Java,C++,Node.js,PostgreSQL,UI/UX,AI/ML,Docker"|make_list %}
+        {% endfor %}
+      <a href="{% url 'users:freelancer_list' %}?skill=Python" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">Python</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=React" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">React</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=Django" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">Django</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=Java" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">Java</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=C++" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">C++</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=Node.js" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">Node.js</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=PostgreSQL" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">PostgreSQL</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=UI/UX" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">UI/UX</a>
+      <a href="{% url 'users:freelancer_list' %}?skill=AI/ML" class="px-4 py-2 rounded-xl glass-card border border-slate-800 text-xs font-semibold text-cyan-400 hover:border-cyan-500/50">AI/ML</a>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Developers Section -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Featured Developers</h2>
+        <p class="text-sm text-slate-400 mt-1">Connect with verified full-stack, frontend, and backend engineers.</p>
+      </div>
+      <a href="{% url 'users:freelancer_list' %}" class="text-sm font-semibold text-cyan-400 hover:text-cyan-300">
+        Browse All Developers
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      {% for f in top_freelancers %}
+        <div class="p-6 rounded-2xl glass-card text-center border border-slate-800 hover:border-cyan-500/40">
+          <div class="w-20 h-20 mx-auto rounded-full bg-slate-800 border-2 border-cyan-500/60 overflow-hidden flex items-center justify-center mb-4">
+            {% if f.avatar %}
+              <img src="{{ f.avatar.url }}" alt="{{ f.username }}" class="w-full h-full object-cover">
+            {% else %}
+              <span class="text-2xl font-extrabold text-cyan-400">{{ f.username|slice:":2"|upper }}</span>
+            {% endif %}
+          </div>
+
+          <h3 class="font-bold text-white text-base">{{ f.get_full_name|default:f.username }}</h3>
+          <p class="text-xs text-cyan-400 font-medium mt-0.5">{{ f.profile.title }}</p>
+          
+          <div class="flex items-center justify-center space-x-1 my-2 text-amber-400 text-xs">
+            <i class="fa-solid fa-star"></i>
+            <span class="font-bold text-white">{{ f.profile.rating_average }}</span>
+            <span class="text-slate-500">({{ f.profile.rating_count }})</span>
+          </div>
+
+          <p class="text-xs font-semibold text-slate-300">{{ f.profile.currency }}{{ f.profile.hourly_rate }}/hour</p>
+
+          <div class="mt-4 flex space-x-2">
+            <a href="{% url 'users:profile_detail' username=f.username %}" class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300">
+              View Profile
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Featured Projects Showcase Section -->
+<section class="py-16 border-t border-slate-800/60 bg-slate-950/40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Featured Portfolio Projects</h2>
+        <p class="text-sm text-slate-400 mt-1">Explore real web apps, mobile apps, and AI platforms built by freelancers.</p>
+      </div>
+      <a href="{% url 'jobs:project_showcase' %}" class="text-sm font-semibold text-cyan-400 hover:text-cyan-300">
+        Explore Showcase
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for proj in featured_projects %}
+        <div class="p-6 rounded-3xl glass-card border border-slate-800 flex flex-col justify-between hover:border-cyan-500/40">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-cyan-400 text-[10px] font-bold border border-slate-800 uppercase">{{ proj.category.name|default:"Web App" }}</span>
+            
+            <a href="{% url 'jobs:project_detail' pk=proj.pk %}">
+              <h3 class="text-lg font-bold text-white mt-3 hover:text-cyan-400 transition-colors line-clamp-1">{{ proj.title }}</h3>
+            </a>
+
+            <p class="text-xs text-slate-300 mt-2 line-clamp-3 leading-relaxed">{{ proj.description }}</p>
+
+            <div class="flex flex-wrap gap-1.5 mt-4">
+              {% for tech in proj.get_tech_list %}
+                <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 text-[11px] border border-slate-800">{{ tech }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400">By {{ proj.freelancer.username }}</span>
+            <a href="{% url 'jobs:project_detail' pk=proj.pk %}" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-cyan-400 hover:bg-cyan-300">
+              View Project
+            </a>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-span-3 text-center py-8 text-slate-400">No portfolio projects featured yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 class="text-3xl font-extrabold text-white mb-3">How Freelancify Works</h2>
+    <p class="text-sm text-slate-400 max-w-xl mx-auto mb-12">Connect with top developers in three simple steps.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="p-8 rounded-3xl glass-card border border-slate-800 space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-extrabold text-xl mx-auto">1</div>
+        <h3 class="font-bold text-white text-lg">Discover</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">Search developers by skill, experience, or hourly rate and inspect their live portfolio projects.</p>
+      </div>
+
+      <div class="p-8 rounded-3xl glass-card border border-slate-800 space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-extrabold text-xl mx-auto">2</div>
+        <h3 class="font-bold text-white text-lg">Connect</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">Send direct messages or project requests specifying your budget, tech stack, and timeline.</p>
+      </div>
+
+      <div class="p-8 rounded-3xl glass-card border border-slate-800 space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-extrabold text-xl mx-auto">3</div>
+        <h3 class="font-bold text-white text-lg">Collaborate</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">Track project progress, review delivered work, and publish ratings & feedback upon completion.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 border-t border-slate-800/60 bg-gradient-to-b from-slate-950 to-slate-900">
+  <div class="max-w-4xl mx-auto px-4 text-center space-y-6">
+    <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Ready to start your next project?</h2>
+    <p class="text-slate-300 text-sm max-w-xl mx-auto">Join thousands of clients and developers collaborating on modern web, AI, and software products.</p>
+    <div>
+      <a href="{% url 'users:signup' %}" class="inline-block px-10 py-4 rounded-2xl font-extrabold text-sm text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-xl shadow-cyan-500/30">
+        Get Started Free
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}

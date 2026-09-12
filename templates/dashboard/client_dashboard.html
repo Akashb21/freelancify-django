@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Client Dashboard - Freelancify{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl font-extrabold text-white">Client Dashboard</h1>
+      <p class="text-sm text-slate-400 mt-1">Manage project requests, active collaborations, and saved developers.</p>
+    </div>
+
+    <a href="{% url 'users:freelancer_list' %}" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-500/20">
+      <i class="fa-solid fa-magnifying-glass mr-1.5"></i> Discover Developers
+    </a>
+  </div>
+
+  <!-- Metric Cards (Section 14) -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-10">
+    <div class="p-6 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Project Requests</p>
+      <p class="text-3xl font-extrabold text-white mt-1">{{ project_requests.count }}</p>
+    </div>
+
+    <div class="p-6 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Active Projects</p>
+      <p class="text-3xl font-extrabold text-cyan-400 mt-1">{{ active_projects_count }}</p>
+    </div>
+
+    <div class="p-6 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Completed Projects</p>
+      <p class="text-3xl font-extrabold text-emerald-400 mt-1">{{ completed_projects_count }}</p>
+    </div>
+
+    <div class="p-6 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-xs uppercase font-bold text-slate-400 tracking-wider">Saved Developers</p>
+      <p class="text-3xl font-extrabold text-indigo-400 mt-1">{{ saved_developers.count }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Left Column: Sent Project Requests -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="glass-card p-6 rounded-3xl border border-slate-800">
+        <h3 class="text-lg font-bold text-white mb-4">Sent Project Requests</h3>
+
+        <div class="space-y-4">
+          {% for req in project_requests %}
+            <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-sm text-white">{{ req.title }}</h4>
+                <p class="text-xs text-slate-400 mt-0.5">Developer: <span class="text-cyan-400 font-semibold">{{ req.freelancer.username }}</span> • Tech: {{ req.required_technology }}</p>
+                <p class="text-[11px] font-bold text-white mt-1">Budget: {{ req.currency }}{{ req.budget }} • Deadline: {{ req.deadline_days }} days</p>
+              </div>
+
+              <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
+                {% if req.status == 'ACCEPTED' %}badge-active
+                {% elif req.status == 'COMPLETED' %}badge-completed
+                {% else %}badge-pending{% endif %}">
+                {{ req.get_status_display }}
+              </span>
+            </div>
+          {% empty %}
+            <p class="text-xs text-slate-400 text-center py-6">No project requests sent yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar: Saved / Favorite Developers (Section 15) -->
+    <div class="space-y-6">
+      <div class="glass-card p-6 rounded-3xl border border-slate-800">
+        <h3 class="text-lg font-bold text-white mb-4">Saved Developers ({{ saved_developers.count }})</h3>
+
+        <div class="space-y-3">
+          {% for fav in saved_developers %}
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <a href="{% url 'users:profile_detail' username=fav.freelancer.username %}" class="font-bold text-xs text-white hover:text-cyan-400">
+                  {{ fav.freelancer.get_full_name|default:fav.freelancer.username }}
+                </a>
+                <p class="text-[10px] text-cyan-400 mt-0.5">{{ fav.freelancer.profile.title }}</p>
+              </div>
+
+              <a href="{% url 'users:toggle_favorite' freelancer_id=fav.freelancer.pk %}" class="text-red-400 text-xs hover:text-slate-400" title="Remove Favorite">
+                <i class="fa-solid fa-trash-can"></i>
+              </a>
+            </div>
+          {% empty %}
+            <p class="text-xs text-slate-400 text-center py-4">No saved developers.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

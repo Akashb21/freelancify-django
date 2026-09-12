@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Submit Work - Contract #{{ contract.id }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="glass-card p-8 rounded-3xl border border-slate-800 shadow-2xl">
+    
+    <div class="mb-8 border-b border-slate-800 pb-4">
+      <h1 class="text-2xl font-extrabold text-white">Deliver Work for Review</h1>
+      <p class="text-xs text-slate-400 mt-1">Contract: {{ contract.job.title }}</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Work Summary / Message</label>
+        <textarea name="message" rows="5" required class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-cyan-500 placeholder-slate-500" placeholder="Describe the completed work, features built, and testing notes..."></textarea>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Live Demo / Staging URL (Optional)</label>
+        <input type="url" name="external_url" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-cyan-500 placeholder-slate-500" placeholder="https://github.com/... or https://staging.example.com">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Attach Deliverable File (ZIP / PDF / Media)</label>
+        <input type="file" name="file_attachment" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-slate-300 text-xs focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <div class="flex items-center justify-end space-x-4 pt-4">
+        <a href="{% url 'contracts:contract_detail' pk=contract.pk %}" class="px-6 py-3 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Cancel</a>
+        <button type="submit" class="px-8 py-3 rounded-xl font-bold text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-500/20">
+          Submit Work Now
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}

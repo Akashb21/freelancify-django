@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Developer Dashboard - Freelancify{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl font-extrabold text-white">Developer Dashboard</h1>
+      <p class="text-sm text-slate-400 mt-1">Manage your portfolio projects, services, client requests, and completion rate.</p>
+    </div>
+
+    <a href="{% url 'jobs:project_showcase' %}" class="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all shadow-lg shadow-cyan-500/20">
+      <i class="fa-solid fa-folder-plus mr-1.5"></i> My Project Showcase
+    </a>
+  </div>
+
+  <!-- Metric Cards (Section 13) -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-10">
+    <div class="p-5 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Projects</p>
+      <p class="text-2xl font-extrabold text-white mt-1">{{ total_projects_count }}</p>
+    </div>
+
+    <div class="p-5 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Active Requests</p>
+      <p class="text-2xl font-extrabold text-cyan-400 mt-1">{{ active_requests_count }}</p>
+    </div>
+
+    <div class="p-5 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Completed Projects</p>
+      <p class="text-2xl font-extrabold text-indigo-400 mt-1">{{ completed_projects_count }}</p>
+    </div>
+
+    <div class="p-5 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Average Rating</p>
+      <p class="text-2xl font-extrabold text-amber-400 mt-1">★ {{ user.profile.rating_average }}</p>
+    </div>
+
+    <div class="p-5 rounded-3xl glass-card border border-slate-800 text-center">
+      <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Profile Completion</p>
+      <p class="text-2xl font-extrabold text-emerald-400 mt-1">{{ profile_completion }}%</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Left Column: Project Requests & Services -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Project Requests Card -->
+      <div class="glass-card p-6 rounded-3xl border border-slate-800">
+        <h3 class="text-lg font-bold text-white mb-4">Client Project Requests</h3>
+
+        <div class="space-y-4">
+          {% for req in project_requests %}
+            <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="font-bold text-sm text-white">{{ req.title }}</span>
+                  <p class="text-xs text-slate-400 mt-0.5">Client: {{ req.client.username }} • Deadline: {{ req.deadline_days }} days • Tech: {{ req.required_technology }}</p>
+                </div>
+                <span class="text-xl font-extrabold text-cyan-400">{{ req.currency }}{{ req.budget }}</span>
+              </div>
+
+              <p class="text-xs text-slate-300 leading-relaxed">{{ req.description }}</p>
+
+              <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase
+                  {% if req.status == 'ACCEPTED' %}badge-active
+                  {% elif req.status == 'COMPLETED' %}badge-completed
+                  {% else %}badge-pending{% endif %}">
+                  {{ req.get_status_display }}
+                </span>
+
+                {% if req.status == 'PENDING' %}
+                  <div class="flex space-x-2">
+                    <a href="{% url 'jobs:update_request_status' pk=req.pk %}?status=ACCEPTED" class="px-3.5 py-1.5 rounded-xl bg-cyan-400 text-slate-950 font-bold text-xs hover:bg-cyan-300">
+                      Accept Request
+                    </a>
+                    <a href="{% url 'jobs:update_request_status' pk=req.pk %}?status=REJECTED" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">
+                      Reject
+                    </a>
+                  </div>
+                {% elif req.status == 'ACCEPTED' %}
+                  <a href="{% url 'jobs:update_request_status' pk=req.pk %}?status=COMPLETED" class="px-3.5 py-1.5 rounded-xl bg-emerald-400 text-slate-950 font-bold text-xs hover:bg-emerald-300">
+                    Mark Completed
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-xs text-slate-400 text-center py-6">No project requests received yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- My Listed Services -->
+      <div class="glass-card p-6 rounded-3xl border border-slate-800">
+        <h3 class="text-lg font-bold text-white mb-4">My Offered Services</h3>
+
+        <div class="space-y-3">
+          {% for s in my_services %}
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-xs text-white">{{ s.title }}</h4>
+                <p class="text-[11px] text-slate-400 mt-0.5">Delivery: {{ s.delivery_days }} days • Tech: {{ s.technologies }}</p>
+              </div>
+              <span class="font-bold text-cyan-400 text-sm">{{ s.currency }}{{ s.starting_price }}</span>
+            </div>
+          {% empty %}
+            <p class="text-xs text-slate-400 text-center py-4">No services listed yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Sidebar: Portfolio Projects -->
+    <div class="space-y-6">
+      <div class="glass-card p-6 rounded-3xl border border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold text-white">My Portfolio Projects</h3>
+          <a href="{% url 'users:profile_edit' %}" class="text-xs text-cyan-400 font-semibold hover:underline">+ Add</a>
+        </div>
+
+        <div class="space-y-3">
+          {% for proj in my_projects %}
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800">
+              <a href="{% url 'jobs:project_detail' pk=proj.pk %}" class="font-bold text-xs text-white hover:text-cyan-400">
+                {{ proj.title }}
+              </a>
+              <p class="text-[10px] text-slate-400 mt-1 truncate">{{ proj.technologies }}</p>
+            </div>
+          {% empty %}
+            <p class="text-xs text-slate-400 text-center py-4">No portfolio projects added.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

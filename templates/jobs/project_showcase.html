@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Portfolio Projects Showcase - Freelancify{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl font-extrabold text-white">Public Project Showcase</h1>
+      <p class="text-sm text-slate-400 mt-1">Explore real web apps, mobile apps, and full-stack projects built by freelancers.</p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="glass-card p-6 rounded-3xl border border-slate-800 mb-8">
+    <form method="GET" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Search Keywords / Tech</label>
+        <input type="text" name="q" value="{{ query }}" placeholder="React, Django, E-Commerce..." class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500">
+      </div>
+
+      <div>
+        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Category</label>
+        <select name="category" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-cyan-500">
+          <option value="">All Categories</option>
+          {% for cat in categories %}
+            <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="flex items-end">
+        <button type="submit" class="w-full py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-cyan-400 hover:bg-cyan-300 transition-all">
+          Filter Projects
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Project Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    {% for proj in projects %}
+      <div class="p-6 rounded-3xl glass-card border border-slate-800 flex flex-col justify-between hover:border-cyan-500/40">
+        <div>
+          <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-cyan-400 text-[10px] font-bold border border-slate-800 uppercase">{{ proj.category.name|default:"Web Development" }}</span>
+          
+          <a href="{% url 'jobs:project_detail' pk=proj.pk %}">
+            <h3 class="text-lg font-bold text-white mt-3 hover:text-cyan-400 transition-colors line-clamp-1">{{ proj.title }}</h3>
+          </a>
+
+          <p class="text-xs text-slate-300 mt-2 line-clamp-3 leading-relaxed">{{ proj.description }}</p>
+
+          <div class="flex flex-wrap gap-1.5 mt-4">
+            {% for tech in proj.get_tech_list %}
+              <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 text-[11px] border border-slate-800">{{ tech }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
+          <a href="{% url 'users:profile_detail' username=proj.freelancer.username %}" class="text-xs font-semibold text-slate-400 hover:text-cyan-400">
+            By {{ proj.freelancer.get_full_name|default:proj.freelancer.username }}
+          </a>
+
+          <div class="flex items-center space-x-2">
+            <button onclick="openDemoModal('{{ proj.title|escapejs }}', '{{ proj.technologies|escapejs }}', '{{ proj.freelancer.username }}')" class="px-3 py-1.5 rounded-xl bg-cyan-400 text-slate-950 font-bold text-xs hover:bg-cyan-300 transition-all">
+              Live Demo
+            </button>
+            <a href="{% url 'jobs:project_detail' pk=proj.pk %}" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-200 font-bold text-xs hover:bg-slate-700">
+              Details
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-span-3 text-center py-12 glass-card rounded-3xl">
+        <i class="fa-solid fa-folder-open text-4xl text-slate-600 mb-3"></i>
+        <p class="text-slate-300 font-semibold">No portfolio projects match your criteria.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

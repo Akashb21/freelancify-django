@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Leave Review - Contract #{{ contract.id }}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="glass-card p-8 rounded-3xl border border-slate-800 shadow-2xl">
+    
+    <div class="mb-8 text-center border-b border-slate-800 pb-4">
+      <h1 class="text-2xl font-extrabold text-white">Rate & Review {{ reviewee.username }}</h1>
+      <p class="text-xs text-slate-400 mt-1">Contract: {{ contract.job.title }}</p>
+    </div>
+
+    <form method="POST" class="space-y-6">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 text-center">Star Rating</label>
+        <select name="rating" class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-amber-400 font-bold text-center text-base focus:outline-none">
+          <option value="5">★★★★★ (5 Stars - Exceptional Work)</option>
+          <option value="4">★★★★☆ (4 Stars - Good Performance)</option>
+          <option value="3">★★★☆☆ (3 Stars - Average)</option>
+          <option value="2">★★☆☆☆ (2 Stars - Below Expectation)</option>
+          <option value="1">★☆☆☆☆ (1 Star - Poor Experience)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Written Feedback</label>
+        <textarea name="feedback" rows="4" required class="w-full px-4 py-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-white text-xs focus:outline-none focus:border-cyan-500 placeholder-slate-500" placeholder="Share your experience working with this user..."></textarea>
+      </div>
+
+      <button type="submit" class="w-full py-3.5 rounded-xl font-bold text-xs text-slate-950 bg-amber-400 hover:bg-amber-300 transition-all shadow-lg shadow-amber-500/20">
+        Publish Review
+      </button>
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}
