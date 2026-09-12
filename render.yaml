@@ -1,8 +1,8 @@
 services:
   - type: web
     name: freelancify
-    env: python
-    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py seed_data && python manage.py collectstatic --noinput"
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
     startCommand: "gunicorn freelancify.wsgi:application"
 
     envVars:
@@ -11,12 +11,3 @@ services:
 
       - key: SECRET_KEY
         generateValue: true
-
-      - key: DATABASE_URL
-        sync: false
-
-      - key: STRIPE_SECRET_KEY
-        sync: false
-
-      - key: STRIPE_PUBLIC_KEY
-        sync: false
