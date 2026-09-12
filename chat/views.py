@@ -17,16 +17,20 @@ def inbox_view(request):
 
     selected_conv = None
     conversation_id = request.GET.get('conv')
+    show_chat = False
+    
     if conversation_id:
         selected_conv = get_object_or_404(Conversation, pk=conversation_id, participants=request.user)
-    elif len(conversations) > 0:
+        show_chat = True
+    elif len(conversations) > 0 and not request.GET.get('list'):
         selected_conv = conversations[0]
+        # On desktop, show selected_conv. On mobile, if explicitly requested, show list.
 
     messages_list = []
     other_user = None
     if selected_conv:
         other_user = selected_conv.get_other_participant(request.user)
-        messages_list = selected_conv.messages.select_related('sender').all()
+        messages_list = selected_conv.messages.select_related('sender').order_by('created_at')
         # Mark as read
         selected_conv.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
 
@@ -35,6 +39,7 @@ def inbox_view(request):
         'selected_conv': selected_conv,
         'other_user': other_user,
         'messages_list': messages_list,
+        'show_chat': show_chat,
     }
     return render(request, 'chat/inbox.html', context)
 
@@ -74,9 +79,34 @@ def send_message_api(request, conv_id):
             conv.save() # update timestamp
             return JsonResponse({
                 'status': 'ok',
+                'id': msg.id,
                 'message': msg.text,
                 'sender': msg.sender.username,
                 'created_at': msg.created_at.strftime('%H:%M'),
             })
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+
+@login_required
+def fetch_messages_api(request, conv_id):
+    conv = get_object_or_404(Conversation, pk=conv_id, participants=request.user)
+    last_id = request.GET.get('after_id', 0)
+    try:
+        last_id = int(last_id)
+    except ValueError:
+        last_id = 0
+
+    new_messages = conv.messages.filter(id__gt=last_id).select_related('sender').order_by('created_at')
+    conv.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+
+    data = []
+    for msg in new_messages:
+        data.append({
+            'id': msg.id,
+            'sender': msg.sender.username,
+            'message': msg.text,
+            'created_at': msg.created_at.strftime('%H:%M')
+        })
+
+    return JsonResponse({'messages': data})
